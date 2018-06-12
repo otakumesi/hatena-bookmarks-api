@@ -1,0 +1,6 @@
+{
+  "alias": "hatena-bookmarks-api.now.sh",
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

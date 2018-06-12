@@ -1,0 +1,24 @@
+{
+  "name": "hatena-bookmarks-api",
+  "version": "0.0.1",
+  "description": "hatena bookmarks api",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "otakumesi <bakednt@gmail.com> (http://otakumesi.io)",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^16.1.0"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
+    "date-fns": "^1.29.0",
+    "express": "^4.16.3",
+    "feedparser": "^2.2.9",
+    "memory-cache": "^0.2.0",
+    "verror": "^1.10.0"
+  }
+}
