@@ -2,10 +2,16 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cache = require('memory-cache');
 const cors = require('cors');
-const VError = require('verror').WError
+const VError = require('verror').WError;
 
-const dataFns = require('date-fns');
-const FeedParser = require('feedparser');
+const startOfMonth = require('date-fns/start_of_month');
+const getDaysInMonth = require('date-fns/get_days_in_month');
+const getYear = require('date-fns/get_year');
+const getMonth = require('date-fns/get_month');
+const format = require('date-fns/format');
+
+const cheerio = require('cheerio');
+const fetch = require('node-fetch');
 
 const app = express()
 app.use(cors())
@@ -33,10 +39,37 @@ app.get('/v1/:username', async (req, res, next) => {
   }
 });
 
-const fetchBookmarksForThisMonths = (username) => {
+app.use((err, req, res, next) => {
+  res.status(500).send({
+    error: err.message
+  });
+});
 
+app.listen(8080, () => {
+  console.log('Server start.')
+})
+
+const fetchBookmarksForThisMonths = async (username) => {
+  dates = getThisMonthDates();
+  return Promise.all(
+    dates.map((date) => {
+      return fetchBookmarksForDaily(username, date);
+    })
+  );
 };
 
-const fetch BookmarksForDaily = (username, day) => {
-  const rss = await fetch(`http://b.hatena.ne.jp/${username}/atomfeed/?date={day}`)
+const getThisMonthDates = () => {
+  today = new Date();
+  dayNumber = getDaysInMonth(today);
+  dates = Array.from({length: dayNumber}, (v, k) => k + 1);
+  return dates.map((date) => {
+    return new Date(getYear(today), getMonth(today), date);
+  });
+}
+
+const fetchBookmarksForDaily = async (username, date) => {
+  formatDate = format(date, 'YYYYMMDD');
+  const data = await fetch(`http://b.hatena.ne.jp/${username}/atomfeed?date=${formatDate}`);
+  const $ = cheerio.load(await data.text(), {xmlMode: true});
+  return {"date": format(date, 'YYYY-MM-DD'), "count": $('feed entry').length}
 }
