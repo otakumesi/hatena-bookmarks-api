@@ -9,6 +9,7 @@ const getDaysInMonth = require('date-fns/get_days_in_month');
 const getYear = require('date-fns/get_year');
 const getMonth = require('date-fns/get_month');
 const format = require('date-fns/format');
+const isToday = require('date-fns/is_today');
 
 const cheerio = require('cheerio');
 const fetch = require('node-fetch');
@@ -24,14 +25,8 @@ app.use(
 app.get('/v1/:username', async (req, res, next) => {
   try {
     const { username } = req.params;
-    const cached = cache.get(username);
-    if (cached != null) {
-      return res.json(cached);
-    }
 
     const bookmarks = await fetchBookmarksForThisMonths(username);
-
-    cache.put(username, bookmarks);
 
     res.json(bookmarks);
   } catch (err) {
@@ -69,7 +64,20 @@ const getThisMonthDates = () => {
 
 const fetchBookmarksForDaily = async (username, date) => {
   formatDate = format(date, 'YYYYMMDD');
-  const data = await fetch(`http://b.hatena.ne.jp/${username}/atomfeed?date=${formatDate}`);
+  
+  let cacheKey = `${username}_${formatDate}`
+  let cached = cache.get(cacheKey);
+  if (cached != null) {
+    return cached;
+  }
+
+  let data = await fetch(`http://b.hatena.ne.jp/${username}/atomfeed?date=${formatDate}`);
   const $ = cheerio.load(await data.text(), {xmlMode: true});
-  return {"date": format(date, 'YYYY-MM-DD'), "count": $('feed entry').length}
+
+  let bookmarkData = {"date": format(date, 'YYYY-MM-DD'), "count": $('feed entry').length}
+  if(!isToday(date)) {
+    cache.put(cacheKey, bookmarkData);
+  }
+
+  return bookmarkData;
 }
