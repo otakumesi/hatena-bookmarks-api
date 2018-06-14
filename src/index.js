@@ -30,7 +30,11 @@ app.get('/v1/:username', async (req, res, next) => {
 
     res.json(bookmarks);
   } catch (err) {
-    next(new VError(err, "Getting bookmarks has failed."))
+    if (process.env.NODE_ENV === 'production') {
+      next(new VError(err, "Getting bookmarks has failed."))
+    } else {
+      next(new VError(err, err.message))
+    }
   }
 });
 
