@@ -78,7 +78,12 @@ const fetchBookmarksForDaily = async (username, date) => {
   let data = await fetch(`http://b.hatena.ne.jp/${username}/atomfeed?date=${formatDate}`);
   const $ = cheerio.load(await data.text(), {xmlMode: true});
 
-  let bookmarkData = {"date": format(date, 'YYYY-MM-DD'), "count": $('feed entry').length}
+  let entries = $('feed').find('entry').map((i, entry) => {
+    let sourceURL = $(entry).find('link[rel="related"]').attr('href');
+    let bookmarkURL = $(entry).find('link[rel="alternate"]').attr('href');
+    return {"sourceURL": sourceURL, "bookmarkURL": bookmarkURL};
+  }).get();
+  let bookmarkData = {"date": format(date, 'YYYY-MM-DD'), "count": $('feed entry').length, "entries": entries}
   if(!isToday(date)) {
     cache.put(cacheKey, bookmarkData);
   }
