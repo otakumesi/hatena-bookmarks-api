@@ -22,6 +22,24 @@ app.use(
   })
 )
 
+app.get('/', async (req, res, next) => {
+  const apis = {
+    "links": {
+      "v1": "/v1"
+    }
+  }
+  res.json(apis);
+});
+
+app.get('/v1', async (req, res, next) => {
+  const apis = {
+    "links": {
+      "bookmarks": "/v1/:username"
+    }
+  }
+  res.json(apis);
+});
+
 app.get('/v1/:username', async (req, res, next) => {
   try {
     const { username } = req.params;
