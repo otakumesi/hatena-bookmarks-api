@@ -24,17 +24,8 @@ app.use(
 
 app.get('/', async (req, res, next) => {
   const apis = {
-    "links": {
-      "v1": "/v1"
-    }
-  }
-  res.json(apis);
-});
-
-app.get('/v1', async (req, res, next) => {
-  const apis = {
-    "links": {
-      "bookmarks": "/v1/:username"
+    "endPoints": {
+      "bookmarkApi": "/v1/:username"
     }
   }
   res.json(apis);
@@ -46,7 +37,7 @@ app.get('/v1/:username', async (req, res, next) => {
 
     const bookmarks = await fetchBookmarksForThisMonths(username);
 
-    res.json(bookmarks);
+    res.json({'data': bookmarks});
   } catch (err) {
     if (process.env.NODE_ENV === 'production') {
       next(new VError(err, "Getting bookmarks has failed."))
