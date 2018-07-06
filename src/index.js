@@ -37,7 +37,7 @@ app.get('/v1/:username', async (req, res, next) => {
 
     const bookmarks = await fetchBookmarksForThisMonths(username);
 
-    res.json({'data': bookmarks});
+    res.json({"data": bookmarks});
   } catch (err) {
     if (process.env.NODE_ENV === 'production') {
       next(new VError(err, "Getting bookmarks has failed."))
